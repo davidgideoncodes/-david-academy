@@ -1,0 +1,157 @@
+﻿{% extends "base.html" %}
+{% block title %}My Portal — David Academy{% endblock %}
+{% block content %}
+
+<div class="profile-card">
+  <div class="profile-avatar">{{ student.full_name[0] }}</div>
+  <div class="profile-info">
+    <h2>{{ student.full_name }}</h2>
+    <p>{{ student.student_id }} &nbsp;·&nbsp; {{ student.class_name }} &nbsp;·&nbsp; <span class="status-badge">Active</span></p>
+  </div>
+  <a href="/student/pay-fees" class="pay-btn">Pay Fees</a>
+</div>
+
+{% if portal_open %}
+<div id="portal-open">
+{% if grades %}
+<div class="results-header">
+  <h3>Results — {{ term.name }}</h3>
+  <div class="term-badge">Portal Open</div>
+</div>
+
+<div class="grades-grid">
+{% for grade in grades %}
+<div class="grade-card">
+  <div class="grade-subject">{{ grade.subject.name if grade.subject else "Mathematics" }}</div>
+  <div class="grade-scores">
+    <div class="score-item"><span class="score-label">Test</span><span class="score-val">{{ grade.test_score }}</span></div>
+    <div class="score-divider"></div>
+    <div class="score-item"><span class="score-label">Exam</span><span class="score-val">{{ grade.exam_score }}</span></div>
+    <div class="score-divider"></div>
+    <div class="score-item"><span class="score-label">Total</span><span class="score-val total">{{ grade.total }}</span></div>
+  </div>
+  <div class="grade-badge
+    {% if grade.total >= 70 %}grade-a
+    {% elif grade.total >= 60 %}grade-b
+    {% elif grade.total >= 50 %}grade-c
+    {% elif grade.total >= 40 %}grade-d
+    {% else %}grade-f{% endif %}">
+    {% if grade.total >= 70 %}A
+    {% elif grade.total >= 60 %}B
+    {% elif grade.total >= 50 %}C
+    {% elif grade.total >= 40 %}D
+    {% else %}F{% endif %}
+  </div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">📋</div>
+  <h3>No results yet</h3>
+  <p>Your teacher has not submitted grades for this term.</p>
+</div>
+{% endif %}
+</div>
+
+{% else %}
+<div id="portal-closed" class="portal-closed-card">
+  <div class="lock-icon">🔒</div>
+  <h3>Results Not Available</h3>
+  <p>The result portal is currently closed. This page checks automatically every 15 seconds.</p>
+</div>
+{% endif %}
+
+<a href="/logout" class="logout-link-bottom">Logout</a>
+
+<style>
+.profile-card{
+  background:linear-gradient(135deg,#0f1f5c,#1a237e);
+  border-radius:16px;padding:28px 32px;
+  display:flex;align-items:center;gap:20px;
+  margin-bottom:24px;
+  animation:fadeUp 0.5s ease both;
+}
+.profile-avatar{
+  width:56px;height:56px;border-radius:50%;
+  background:rgba(255,215,0,0.15);border:2px solid rgba(255,215,0,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:800;color:#ffd700;flex-shrink:0;
+}
+.profile-info h2{font-size:18px;font-weight:700;color:#fff;margin-bottom:6px;}
+.profile-info p{font-size:13px;color:rgba(255,255,255,0.55);}
+.status-badge{background:rgba(67,160,71,0.2);color:#81c784;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.pay-btn{
+  margin-left:auto;flex-shrink:0;
+  background:linear-gradient(135deg,#ffd700,#f9a825);
+  color:#0f1f5c;padding:10px 22px;border-radius:10px;
+  text-decoration:none;font-size:13px;font-weight:800;
+  transition:all 0.3s;
+}
+.pay-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,215,0,0.35);}
+
+.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.results-header h3{font-size:16px;font-weight:700;color:var(--text);}
+.term-badge{background:rgba(67,160,71,0.1);color:#43a047;border:1px solid rgba(67,160,71,0.2);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;}
+
+.grades-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;}
+.grade-card{
+  background:var(--card);border-radius:14px;padding:22px;
+  border:1px solid var(--border);
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  animation:fadeUp 0.5s ease both;
+  position:relative;overflow:hidden;
+}
+.grade-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,#0f1f5c,#1a237e);
+}
+.grade-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,0.12);}
+.grade-subject{font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;}
+.grade-scores{display:flex;align-items:center;gap:0;margin-bottom:16px;}
+.score-item{flex:1;text-align:center;}
+.score-label{display:block;font-size:10px;color:var(--muted);font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px;}
+.score-val{font-size:18px;font-weight:700;color:var(--text);}
+.score-val.total{color:#1a237e;}
+.score-divider{width:1px;height:32px;background:var(--border);}
+.grade-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:50%;
+  font-size:16px;font-weight:900;
+}
+.grade-a{background:rgba(46,125,50,0.12);color:#2e7d32;}
+.grade-b{background:rgba(21,101,192,0.12);color:#1565c0;}
+.grade-c{background:rgba(245,127,23,0.12);color:#f57f17;}
+.grade-d{background:rgba(230,81,0,0.12);color:#e65100;}
+.grade-f{background:rgba(198,40,40,0.12);color:#c62828;}
+
+.empty-state{text-align:center;padding:60px 20px;background:var(--card);border-radius:16px;border:1px solid var(--border);}
+.empty-icon{font-size:48px;margin-bottom:16px;}
+.empty-state h3{font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.empty-state p{font-size:14px;color:var(--muted);}
+
+.portal-closed-card{
+  background:var(--card);border-radius:16px;
+  padding:80px 40px;text-align:center;
+  border:1px solid var(--border);
+  animation:fadeUp 0.5s ease both;
+}
+.lock-icon{font-size:56px;margin-bottom:20px;}
+.portal-closed-card h3{font-size:20px;font-weight:800;color:#c62828;margin-bottom:10px;}
+.portal-closed-card p{font-size:14px;color:var(--muted);line-height:1.6;}
+
+.logout-link-bottom{
+  display:block;text-align:center;margin-top:32px;margin-bottom:16px;
+  color:var(--muted);font-size:13px;text-decoration:none;
+  transition:color 0.2s;
+}
+.logout-link-bottom:hover{color:#c62828;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:600px){
+  .profile-card{flex-wrap:wrap;}
+  .pay-btn{margin-left:0;width:100%;text-align:center;}
+  .grades-grid{grid-template-columns:1fr;}
+}
+</style>
+{% endblock %}

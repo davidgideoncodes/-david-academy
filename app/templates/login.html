@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — David Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;min-height:100vh;background:#060d2e;display:flex;align-items:center;justify-content:center;}
+.box{
+  background:#ffffff;border-radius:20px;
+  width:100%;max-width:420px;padding:48px 40px;
+  margin:24px;
+  box-shadow:0 32px 80px rgba(0,0,0,0.4);
+}
+.top-logo{text-align:center;margin-bottom:32px;}
+.top-logo span{
+  font-size:22px;font-weight:800;letter-spacing:-0.5px;
+  background:linear-gradient(135deg,#0f1f5c,#1a237e);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.top-logo p{font-size:12px;color:#aaa;margin-top:4px;}
+.form-title{font-size:22px;font-weight:800;color:#0f1f5c;margin-bottom:4px;letter-spacing:-0.5px;}
+.form-sub{font-size:13px;color:#aaa;margin-bottom:28px;}
+.flash-error{background:#fff0f0;border-left:3px solid #e53935;color:#c62828;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;}
+.flash-success{background:#f0fff4;border-left:3px solid #43a047;color:#2e7d32;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;}
+.field{margin-bottom:16px;}
+.field-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.field label{font-size:11px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;}
+.forgot{font-size:11px;color:#1a237e;font-weight:600;text-decoration:none;}
+.forgot:hover{text-decoration:underline;}
+.input-wrap{position:relative;}
+.input-wrap input{
+  width:100%;padding:12px 42px 12px 16px;
+  border:1.5px solid #e8e8e8;border-radius:10px;
+  font-size:14px;font-family:'Inter',sans-serif;
+  transition:all 0.25s;outline:none;color:#0f1f5c;
+}
+.input-wrap input:focus{border-color:#1a237e;box-shadow:0 0 0 4px rgba(26,35,126,0.07);}
+.eye-btn{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;padding:0;
+  color:#bbb;font-size:16px;transition:color 0.2s;
+}
+.eye-btn:hover{color:#1a237e;}
+.remember{display:flex;align-items:center;gap:8px;margin-bottom:20px;cursor:pointer;}
+.remember input[type=checkbox]{
+  width:16px;height:16px;border-radius:4px;
+  accent-color:#1a237e;cursor:pointer;
+}
+.remember span{font-size:13px;color:#666;}
+.login-btn{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,#0f1f5c,#1a237e);
+  color:#ffd700;border:none;border-radius:10px;
+  font-size:15px;font-weight:700;font-family:'Inter',sans-serif;
+  cursor:pointer;transition:all 0.3s;letter-spacing:0.3px;
+}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(26,35,126,0.28);}
+.login-btn:active{transform:translateY(0);}
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
+.divider-line{flex:1;height:1px;background:#f0f0f0;}
+.divider-text{font-size:11px;color:#ccc;font-weight:500;}
+.back{display:block;text-align:center;color:#aaa;font-size:13px;text-decoration:none;transition:color 0.2s;}
+.back span{color:#1a237e;font-weight:600;}
+.back:hover span{text-decoration:underline;}
+.terms{text-align:center;margin-top:24px;font-size:11px;color:#bbb;line-height:1.6;}
+.terms a{color:#1a237e;text-decoration:none;}
+.terms a:hover{text-decoration:underline;}
+@media(max-width:480px){.box{padding:36px 24px;}}
+</style>
+</head>
+<body>
+
+<div class="box">
+  <div class="top-logo">
+    <span>David Academy</span>
+    <p>Student Portal &mdash; Secure Access</p>
+  </div>
+
+  <h1 class="form-title">Welcome back</h1>
+  <p class="form-sub">Log in with your student ID or staff email</p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}{% for category, message in messages %}
+  <div class="flash-{{ category }}">{{ message }}</div>
+  {% endfor %}{% endif %}
+  {% endwith %}
+
+  <form method="POST" action="/login">
+    <div class="field">
+      <div class="field-header"><label>Student ID or Email</label></div>
+      <div class="input-wrap">
+        <input type="text" name="username" placeholder="e.g. FGC-J1-2607001" required autofocus>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-header">
+        <label>Password</label>
+        <a href="#" class="forgot">Forgot password?</a>
+      </div>
+      <div class="input-wrap">
+        <input type="password" name="password" id="passInput" placeholder="Enter your password" required>
+        <button type="button" class="eye-btn" onclick="togglePass()" id="eyeBtn">👁</button>
+      </div>
+    </div>
+
+    <label class="remember">
+      <input type="checkbox" name="remember">
+      <span>Remember me on this device</span>
+    </label>
+
+    <button type="submit" class="login-btn">Log in to Portal</button>
+  </form>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-text">OR</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <a href="/" class="back">Back to <span>David Academy</span></a>
+
+  <div class="terms">
+    By logging in you agree to our
+    <a href="/terms">Terms of Use</a> and
+    <a href="/privacy">Privacy Policy</a>
+  </div>
+</div>
+
+<script>
+function togglePass(){
+  var inp=document.getElementById('passInput');
+  var btn=document.getElementById('eyeBtn');
+  if(inp.type==='password'){inp.type='text';btn.textContent='🙈';}
+  else{inp.type='password';btn.textContent='👁';}
+}
+</script>
+</body>
+</html>

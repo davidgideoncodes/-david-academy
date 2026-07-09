@@ -1,0 +1,124 @@
+﻿@'
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+
+<div class="card">
+<h2>Portal Control</h2>
+{% if portal %}
+    {% if portal.is_open %}
+    <p style="color:green;font-weight:bold;">Portal is currently OPEN — students can see results</p>
+    {% else %}
+    <p style="color:red;font-weight:bold;">Portal is currently CLOSED — students cannot see results</p>
+    {% endif %}
+{% else %}
+<p style="color:red;font-weight:bold;">Portal has never been opened</p>
+{% endif %}
+<form method="POST" action="/admin/toggle-portal" style="margin-top:15px;">
+    {% if portal and portal.is_open %}
+    <button type="submit" style="background:#c0392b;">Close Portal</button>
+    {% else %}
+    <button type="submit" style="background:#27ae60;">Open Portal</button>
+    {% endif %}
+</form>
+</div>
+
+<div class="card">
+<h2>Enroll New Student</h2>
+<form method="POST" action="/admin/enroll">
+<label>Full Name</label>
+<input type="text" name="full_name" placeholder="e.g. Chidinma Okafor" required>
+<label>Date of Birth</label>
+<input type="date" name="date_of_birth">
+<label>Class</label>
+<select name="class_name" required>
+<option value="">-- Select Class --</option>
+<option value="JSS1">JSS 1</option>
+<option value="JSS2">JSS 2</option>
+<option value="JSS3">JSS 3</option>
+<option value="SS1">SS 1</option>
+<option value="SS2">SS 2</option>
+<option value="SS3">SS 3</option>
+</select>
+<label>Parent Phone Number</label>
+<input type="text" name="parent_contact" placeholder="e.g. 08012345678">
+<label>Student Login Password</label>
+<input type="password" name="password" placeholder="Set a password the student will use to login" required>
+<button type="submit">Enroll Student & Generate ID</button>
+</form>
+</div>
+
+<div class="card">
+<h2>Create Teacher Account</h2>
+<form method="POST" action="/admin/create-teacher">
+<label>Full Name</label>
+<input type="text" name="full_name" placeholder="e.g. Mr. Okon" required>
+<label>Email (used as login username)</label>
+<input type="email" name="email" placeholder="e.g. okon@school.com" required>
+<label>Subject</label>
+<input type="text" name="subject" placeholder="e.g. Mathematics" required>
+<label>Class Assigned</label>
+<select name="class_assigned" required>
+<option value="">-- Select Class --</option>
+<option value="JSS1">JSS 1</option>
+<option value="JSS2">JSS 2</option>
+<option value="JSS3">JSS 3</option>
+<option value="SS1">SS 1</option>
+<option value="SS2">SS 2</option>
+<option value="SS3">SS 3</option>
+</select>
+<label>Password</label>
+<input type="password" name="password" placeholder="Set a password for this teacher" required>
+<button type="submit">Create Teacher Account</button>
+</form>
+</div>
+
+<div class="card">
+<h2>Enrolled Students</h2>
+{% if students %}
+<table>
+<thead><tr><th>Student ID</th><th>Full Name</th><th>Class</th><th>Contact</th><th>Status</th></tr></thead>
+<tbody>
+{% for student in students %}
+<tr>
+<td>{{ student.student_id }}</td>
+<td>{{ student.full_name }}</td>
+<td>{{ student.class_name }}</td>
+<td>{{ student.parent_contact }}</td>
+<td>{{ student.status }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% else %}
+<p>No students enrolled yet.</p>
+{% endif %}
+</div>
+
+<div class="card">
+<h2>Teachers</h2>
+{% if teachers %}
+<table>
+<thead><tr><th>Full Name</th><th>Email</th><th>Subject</th><th>Class</th></tr></thead>
+<tbody>
+{% for teacher in teachers %}
+<tr>
+<td>{{ teacher.full_name }}</td>
+<td>{{ teacher.email }}</td>
+<td>{{ teacher.subject }}</td>
+<td>{{ teacher.class_assigned }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% else %}
+<p>No teachers added yet.</p>
+{% endif %}
+</div>
+
+<div class="card" style="text-align:right;">
+<a href="/logout" style="color:#c0392b;">Logout</a>
+</div>
+
+{% endblock %}
+'@ | Set-Content -Path "app/templates/admin/dashboard.html" -Encoding UTF8

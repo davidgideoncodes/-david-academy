@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify — David Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;min-height:100vh;background:#060d2e;display:flex;align-items:center;justify-content:center;}
+.box{background:#fff;border-radius:20px;width:100%;max-width:400px;padding:48px 40px;margin:24px;box-shadow:0 32px 80px rgba(0,0,0,0.4);}
+.icon{text-align:center;font-size:40px;margin-bottom:16px;}
+.title{font-size:22px;font-weight:800;color:#0f1f5c;margin-bottom:6px;text-align:center;}
+.sub{font-size:13px;color:#aaa;text-align:center;margin-bottom:32px;line-height:1.6;}
+.flash-error{background:#fff0f0;border-left:3px solid #e53935;color:#c62828;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;}
+.otp-inputs{display:flex;gap:10px;justify-content:center;margin-bottom:24px;}
+.otp-inputs input{
+  width:48px;height:56px;border:2px solid #e8e8e8;border-radius:10px;
+  text-align:center;font-size:22px;font-weight:700;color:#0f1f5c;
+  font-family:'Inter',sans-serif;outline:none;
+  transition:all 0.2s;
+}
+.otp-inputs input:focus{border-color:#1a237e;box-shadow:0 0 0 4px rgba(26,35,126,0.07);}
+.verify-btn{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,#0f1f5c,#1a237e);
+  color:#ffd700;border:none;border-radius:10px;
+  font-size:15px;font-weight:700;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all 0.3s;
+}
+.verify-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(26,35,126,0.28);}
+.back{display:block;text-align:center;margin-top:20px;color:#aaa;font-size:13px;text-decoration:none;}
+.back span{color:#1a237e;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="icon">📧</div>
+  <h1 class="title">Check your email</h1>
+  <p class="sub">We sent a 6-digit verification code to your registered email address. Enter it below to continue.</p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}{% for category, message in messages %}
+  <div class="flash-{{ category }}">{{ message }}</div>
+  {% endfor %}{% endif %}
+  {% endwith %}
+
+  <form method="POST" action="/verify-otp" id="otpForm">
+    <input type="hidden" name="otp" id="otpHidden">
+    <div class="otp-inputs">
+      <input type="text" maxlength="1" class="otp-box" autofocus>
+      <input type="text" maxlength="1" class="otp-box">
+      <input type="text" maxlength="1" class="otp-box">
+      <input type="text" maxlength="1" class="otp-box">
+      <input type="text" maxlength="1" class="otp-box">
+      <input type="text" maxlength="1" class="otp-box">
+    </div>
+    <button type="submit" class="verify-btn">Verify & Login</button>
+  </form>
+  <a href="/login" class="back">Back to <span>Login</span></a>
+</div>
+<script>
+var boxes = document.querySelectorAll('.otp-box');
+boxes.forEach(function(box, i){
+  box.addEventListener('input', function(){
+    if(this.value && i < boxes.length - 1) boxes[i+1].focus();
+    collectOtp();
+  });
+  box.addEventListener('keydown', function(e){
+    if(e.key==='Backspace' && !this.value && i > 0) boxes[i-1].focus();
+  });
+});
+function collectOtp(){
+  var otp = Array.from(boxes).map(function(b){return b.value;}).join('');
+  document.getElementById('otpHidden').value = otp;
+}
+document.getElementById('otpForm').addEventListener('submit', function(){collectOtp();});
+</script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+﻿{% extends "base.html" %}
+{% block title %}Teacher Portal — David Academy{% endblock %}
+{% block content %}
+
+<div class="teacher-header">
+  <div class="teacher-avatar">{{ teacher.full_name[0] }}</div>
+  <div class="teacher-info">
+    <h2>{{ teacher.full_name }}</h2>
+    <p>{{ teacher.subject }} &nbsp;·&nbsp; {{ teacher.class_assigned }}</p>
+  </div>
+  {% if term %}
+  <div class="term-info">
+    <span class="term-label">Current Term</span>
+    <span class="term-name">{{ term.name }}</span>
+  </div>
+  {% endif %}
+</div>
+
+{% if not term %}
+<div class="no-term-card">
+  <div class="no-term-icon">⚠️</div>
+  <h3>No Active Term</h3>
+  <p>Ask your administrator to set the current term before you can enter grades.</p>
+</div>
+{% else %}
+
+<div class="grade-section">
+  <div class="grade-section-header">
+    <h3>Enter Grades</h3>
+    <span class="student-count">{{ students|length }} student{{ 's' if students|length != 1 }}</span>
+  </div>
+
+  {% if students %}
+  <div class="grade-table-wrap">
+    <table class="grade-table">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>ID</th>
+          <th>Test /40</th>
+          <th>Exam /60</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for student in students %}
+      <tr>
+        <form method="POST" action="/teacher/enter-grade">
+          <input type="hidden" name="student_id" value="{{ student.id }}">
+          <input type="hidden" name="term_id" value="{{ term.id }}">
+          <td>
+            <div class="student-cell">
+              <div class="student-mini-avatar">{{ student.full_name[0] }}</div>
+              <span>{{ student.full_name }}</span>
+            </div>
+          </td>
+          <td><span class="id-chip">{{ student.student_id }}</span></td>
+          <td><input type="number" name="test_score" min="0" max="40" step="0.5" placeholder="0" class="score-input" required></td>
+          <td><input type="number" name="exam_score" min="0" max="60" step="0.5" placeholder="0" class="score-input" required></td>
+          <td><button type="submit" class="save-btn">Save</button></td>
+        </form>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-class">
+    <div class="empty-icon">👨‍🎓</div>
+    <h3>No students in {{ teacher.class_assigned }}</h3>
+    <p>Ask your administrator to enroll students in this class.</p>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<a href="/logout" class="logout-bottom">Logout</a>
+
+<style>
+.teacher-header{
+  background:linear-gradient(135deg,#0f1f5c,#1a237e);
+  border-radius:16px;padding:28px 32px;
+  display:flex;align-items:center;gap:20px;
+  margin-bottom:24px;animation:fadeUp 0.5s ease both;
+}
+.teacher-avatar{
+  width:56px;height:56px;border-radius:50%;
+  background:rgba(255,215,0,0.15);border:2px solid rgba(255,215,0,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:800;color:#ffd700;flex-shrink:0;
+}
+.teacher-info h2{font-size:18px;font-weight:700;color:#fff;margin-bottom:4px;}
+.teacher-info p{font-size:13px;color:rgba(255,255,255,0.55);}
+.term-info{margin-left:auto;text-align:right;flex-shrink:0;}
+.term-label{display:block;font-size:10px;color:rgba(255,215,0,0.6);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.term-name{font-size:14px;font-weight:700;color:#ffd700;}
+
+.no-term-card{background:var(--card);border-radius:16px;padding:60px;text-align:center;border:1px solid var(--border);}
+.no-term-icon{font-size:48px;margin-bottom:16px;}
+.no-term-card h3{font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.no-term-card p{font-size:14px;color:var(--muted);}
+
+.grade-section{background:var(--card);border-radius:16px;border:1px solid var(--border);overflow:hidden;animation:fadeUp 0.5s ease 0.1s both;}
+.grade-section-header{display:flex;align-items:center;justify-content:space-between;padding:24px 28px;border-bottom:1px solid var(--border);}
+.grade-section-header h3{font-size:16px;font-weight:700;color:var(--text);}
+.student-count{font-size:12px;color:var(--muted);background:var(--bg);padding:4px 12px;border-radius:20px;}
+
+.grade-table-wrap{overflow-x:auto;}
+.grade-table{width:100%;border-collapse:collapse;}
+.grade-table th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+.grade-table td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.grade-table tr:last-child td{border-bottom:none;}
+.grade-table tr:hover td{background:rgba(26,35,126,0.03);}
+
+.student-cell{display:flex;align-items:center;gap:10px;}
+.student-mini-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(26,35,126,0.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#1a237e;flex-shrink:0;
+}
+.student-cell span{font-size:14px;font-weight:500;color:var(--text);}
+.id-chip{background:var(--bg);color:var(--muted);padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;font-family:monospace;}
+
+.score-input{
+  width:80px;padding:8px 10px;
+  border:1.5px solid var(--border);border-radius:8px;
+  font-size:14px;font-weight:600;text-align:center;
+  font-family:'Inter',sans-serif;color:var(--text);
+  background:var(--card);outline:none;transition:border 0.2s;
+}
+.score-input:focus{border-color:#1a237e;box-shadow:0 0 0 3px rgba(26,35,126,0.07);}
+
+.save-btn{
+  background:linear-gradient(135deg,#0f1f5c,#1a237e);
+  color:#ffd700;padding:8px 18px;border:none;border-radius:8px;
+  font-size:12px;font-weight:700;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all 0.2s;
+  white-space:nowrap;
+}
+.save-btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(26,35,126,0.25);}
+
+.empty-class{padding:60px;text-align:center;}
+.empty-icon{font-size:48px;margin-bottom:16px;}
+.empty-class h3{font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.empty-class p{font-size:14px;color:var(--muted);}
+
+.logout-bottom{display:block;text-align:center;margin:32px 0 16px;color:var(--muted);font-size:13px;text-decoration:none;transition:color 0.2s;}
+.logout-bottom:hover{color:#c62828;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+</style>
+{% endblock %}

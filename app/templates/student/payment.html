@@ -1,0 +1,208 @@
+﻿{% extends "base.html" %}
+{% block title %}Pay Fees — David Academy{% endblock %}
+{% block content %}
+
+<div class="back-nav"><a href="/student/dashboard">← Back to Portal</a></div>
+
+<div class="pay-hero">
+  <div class="pay-hero-left">
+    <div class="pay-label">School Fees</div>
+    <h2>{{ term.name if term else "Current Term" }}</h2>
+    <div class="pay-amount">₦{{ "{:,}".format(amount) }}</div>
+    {% if term_paid %}
+    <div class="paid-badge">✓ Fees Paid</div>
+    {% else %}
+    <div class="unpaid-badge">Payment Required</div>
+    {% endif %}
+  </div>
+  <div class="pay-hero-right">
+    <div class="student-info-box">
+      <div class="si-row"><span>Student</span><strong>{{ student.full_name }}</strong></div>
+      <div class="si-row"><span>ID</span><strong>{{ student.student_id }}</strong></div>
+      <div class="si-row"><span>Class</span><strong>{{ student.class_name }}</strong></div>
+    </div>
+  </div>
+</div>
+
+{% if not term_paid and term %}
+<div class="pay-card">
+  <h3>Choose Payment Method</h3>
+  <p class="pay-sub">Select how you want to pay your school fees</p>
+
+  <form method="POST" action="/student/initialize-payment">
+    <div class="pay-methods">
+      <label class="pay-method active" id="cardMethod">
+        <input type="radio" name="channel" value="card" checked style="display:none;">
+        <div class="method-icon">💳</div>
+        <div class="method-info">
+          <strong>Debit Card</strong>
+          <span>Visa, Mastercard, Verve</span>
+        </div>
+        <div class="method-check" id="cardCheck">✓</div>
+      </label>
+      <label class="pay-method" id="transferMethod">
+        <input type="radio" name="channel" value="bank_transfer" style="display:none;">
+        <div class="method-icon">🏦</div>
+        <div class="method-info">
+          <strong>Bank Transfer</strong>
+          <span>Transfer from any bank</span>
+        </div>
+        <div class="method-check" id="transferCheck" style="display:none;">✓</div>
+      </label>
+    </div>
+
+    <div class="email-field">
+      <label>Email for receipt (optional)</label>
+      <input type="email" name="email" placeholder="your-email@example.com">
+    </div>
+
+    <div class="pay-summary">
+      <div class="summary-row"><span>School Fees</span><strong>₦{{ "{:,}".format(amount) }}</strong></div>
+      <div class="summary-row muted"><span>Processing fee</span><strong>~₦100</strong></div>
+      <div class="summary-divider"></div>
+      <div class="summary-row total"><span>Total</span><strong>₦{{ "{:,}".format(amount + 100) }}</strong></div>
+    </div>
+
+    <button type="submit" class="pay-submit-btn">
+      Proceed to Pay ₦{{ "{:,}".format(amount) }} →
+    </button>
+  </form>
+
+  <p class="pay-secure">🔒 Secured by Paystack · End-to-end encrypted · PCI-DSS compliant</p>
+</div>
+{% elif term_paid %}
+<div class="paid-card">
+  <div class="paid-icon">✅</div>
+  <h3>Fees Paid</h3>
+  <p>Your school fees for {{ term.name }} have been paid successfully.</p>
+</div>
+{% endif %}
+
+{% if payments %}
+<div class="history-card">
+  <h3>Payment History</h3>
+  <table>
+    <thead>
+      <tr><th>Term</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr>
+    </thead>
+    <tbody>
+    {% for p in payments %}
+    <tr>
+      <td>{{ p.term }}</td>
+      <td>₦{{ "{:,}".format(p.amount // 100) }}</td>
+      <td>{{ p.channel or "—" }}</td>
+      <td>
+        {% if p.status == "successful" %}<span class="s-success">Paid</span>
+        {% elif p.status == "pending" %}<span class="s-pending">Pending</span>
+        {% else %}<span class="s-failed">Failed</span>{% endif %}
+      </td>
+      <td>{{ p.paid_at.strftime("%d %b %Y") if p.paid_at else "—" }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<style>
+.back-nav{margin-bottom:20px;}
+.back-nav a{color:var(--muted);text-decoration:none;font-size:13px;transition:color 0.2s;}
+.back-nav a:hover{color:var(--text);}
+
+.pay-hero{
+  background:linear-gradient(135deg,#0f1f5c,#1a237e);
+  border-radius:16px;padding:32px;
+  display:grid;grid-template-columns:1fr 1fr;gap:24px;
+  margin-bottom:24px;animation:fadeUp 0.5s ease both;
+}
+.pay-label{font-size:11px;font-weight:700;color:rgba(255,215,0,0.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.pay-hero-left h2{font-size:20px;font-weight:700;color:#fff;margin-bottom:12px;}
+.pay-amount{font-size:40px;font-weight:900;color:#ffd700;letter-spacing:-1px;margin-bottom:16px;}
+.paid-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(67,160,71,0.15);color:#81c784;border:1px solid rgba(67,160,71,0.2);padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;}
+.unpaid-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(198,40,40,0.15);color:#ef9a9a;border:1px solid rgba(198,40,40,0.2);padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;}
+.student-info-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px;}
+.si-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.si-row:last-child{border-bottom:none;}
+.si-row span{font-size:12px;color:rgba(255,255,255,0.4);}
+.si-row strong{font-size:13px;color:#fff;font-weight:600;}
+
+.pay-card{background:var(--card);border-radius:16px;padding:32px;border:1px solid var(--border);margin-bottom:24px;animation:fadeUp 0.5s ease 0.1s both;}
+.pay-card h3{font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.pay-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
+
+.pay-methods{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;}
+.pay-method{
+  border:2px solid var(--border);border-radius:12px;padding:16px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:all 0.2s;
+}
+.pay-method.active{border-color:#1a237e;background:rgba(26,35,126,0.05);}
+.method-icon{font-size:24px;}
+.method-info{flex:1;}
+.method-info strong{display:block;font-size:14px;color:var(--text);font-weight:600;margin-bottom:2px;}
+.method-info span{font-size:12px;color:var(--muted);}
+.method-check{color:#1a237e;font-weight:700;font-size:14px;}
+
+.email-field{margin-bottom:20px;}
+.email-field label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;}
+.email-field input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'Inter',sans-serif;background:var(--card);color:var(--text);outline:none;transition:border 0.2s;}
+.email-field input:focus{border-color:#1a237e;}
+
+.pay-summary{background:var(--bg);border-radius:12px;padding:16px 20px;margin-bottom:20px;}
+.summary-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px;color:var(--text);}
+.summary-row.muted span,.summary-row.muted strong{color:var(--muted);font-size:13px;}
+.summary-row.total span,.summary-row.total strong{font-weight:800;font-size:16px;}
+.summary-divider{height:1px;background:var(--border);margin:8px 0;}
+
+.pay-submit-btn{
+  width:100%;padding:15px;
+  background:linear-gradient(135deg,#0f1f5c,#1a237e);
+  color:#ffd700;border:none;border-radius:12px;
+  font-size:15px;font-weight:800;font-family:'Inter',sans-serif;
+  cursor:pointer;transition:all 0.3s;margin-bottom:16px;
+}
+.pay-submit-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(26,35,126,0.3);}
+.pay-secure{text-align:center;font-size:12px;color:var(--muted);}
+
+.paid-card{background:var(--card);border-radius:16px;padding:60px;text-align:center;border:1px solid var(--border);margin-bottom:24px;}
+.paid-icon{font-size:48px;margin-bottom:16px;}
+.paid-card h3{font-size:20px;font-weight:800;color:#2e7d32;margin-bottom:8px;}
+.paid-card p{font-size:14px;color:var(--muted);}
+
+.history-card{background:var(--card);border-radius:16px;padding:28px 32px;border:1px solid var(--border);}
+.history-card h3{font-size:16px;font-weight:700;color:var(--text);margin-bottom:20px;}
+.s-success{background:rgba(46,125,50,0.1);color:#2e7d32;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.s-pending{background:rgba(245,127,23,0.1);color:#f57f17;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.s-failed{background:rgba(198,40,40,0.1);color:#c62828;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:600px){
+  .pay-hero{grid-template-columns:1fr;}
+  .pay-methods{grid-template-columns:1fr;}
+}
+</style>
+
+<script>
+var cardMethod = document.getElementById('cardMethod');
+var transferMethod = document.getElementById('transferMethod');
+var cardCheck = document.getElementById('cardCheck');
+var transferCheck = document.getElementById('transferCheck');
+
+if(cardMethod) {
+  cardMethod.addEventListener('click', function(){
+    cardMethod.classList.add('active');
+    transferMethod.classList.remove('active');
+    cardCheck.style.display = 'block';
+    transferCheck.style.display = 'none';
+    cardMethod.querySelector('input').checked = true;
+  });
+  transferMethod.addEventListener('click', function(){
+    transferMethod.classList.add('active');
+    cardMethod.classList.remove('active');
+    transferCheck.style.display = 'block';
+    cardCheck.style.display = 'none';
+    transferMethod.querySelector('input').checked = true;
+  });
+}
+</script>
+{% endblock %}
