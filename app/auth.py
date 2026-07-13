@@ -134,10 +134,13 @@ def portal_status():
     is_open = portal.is_open if portal else False
     return jsonify({"is_open": is_open})
 
-@auth_bp.route("/terms")
-def terms():
-    return render_template("terms.html")
-
-@auth_bp.route("/privacy")
-def privacy():
-    return render_template("privacy.html")
+@auth_bp.route("/setup-term")
+def setup_term():
+    from app.models import Term
+    existing = Term.query.filter_by(is_current=True).first()
+    if existing:
+        return "Term already exists: " + existing.name
+    term = Term(name="2026 First Term", is_current=True)
+    db.session.add(term)
+    db.session.commit()
+    return "Term created: 2026 First Term"
