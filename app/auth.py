@@ -134,8 +134,10 @@ def portal_status():
     is_open = portal.is_open if portal else False
     return jsonify({"is_open": is_open})
 
-@auth_bp.route("/setup-term")
-def setup_term():
+@auth_bp.route("/setup-term/<secret>")
+def setup_term(secret):
+    if secret != "david2026setup":
+        return "Not found", 404
     from app.models import Term
     existing = Term.query.filter_by(is_current=True).first()
     if existing:
