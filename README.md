@@ -65,6 +65,6 @@ PAYSTACK_PUBLIC_KEY=pk_test_...
 
 ---
 
-## Built by
+ ## Built by
 
 David Gideon — [@davidgideoncodes](https://github.com/davidgideoncodes)
